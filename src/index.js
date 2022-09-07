@@ -19,8 +19,10 @@ btn.textContent = 'Load more...';
 document.body.append(gallery);
 gallery.after(btn);
 
-input.addEventListener('change', e => {
+input.addEventListener('input', e => {
   queryString = e.target.value;
+  gallery.innerHTML = '';
+  btn.classList.add('hide');
 });
 
 form.addEventListener('submit', e => {
@@ -36,7 +38,6 @@ const fetchImages = () => {
       ` ${BASE_URL}?key=${apiKey}&q=${queryString}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${page}`
     )
     .then(response => {
-      console.log(response.data);
       return response.data;
     });
 };
@@ -94,7 +95,7 @@ const onLoadBtnClick = () => {
   page = page + 1;
   firstRender = false;
   fetchImages().then(response => {
-    if (response.hits.length >= response.totalHits) {
+    if (response.hits.length < 40) {
       btn.classList.add('hide');
       return Notify.info(
         "We're sorry, but you've reached the end of search results."
