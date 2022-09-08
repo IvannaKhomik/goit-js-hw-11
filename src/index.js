@@ -4,6 +4,7 @@ import { Notify } from 'notiflix/build/notiflix-notify-aio';
 const BASE_URL = 'https://pixabay.com/api/';
 const apiKey = '29769658-2e9c8ec471a16ce567c0ae4f1';
 let page = 1;
+let perPage = 40;
 let queryString = '';
 let firstRender = true;
 
@@ -27,7 +28,7 @@ input.addEventListener('input', e => {
 
 form.addEventListener('submit', e => {
   e.preventDefault();
-  fetchImages().then(response => {
+  fetchImages((page = 1)).then(response => {
     return createGallery(response.hits);
   });
 });
@@ -35,7 +36,7 @@ form.addEventListener('submit', e => {
 const fetchImages = () => {
   return axios
     .get(
-      ` ${BASE_URL}?key=${apiKey}&q=${queryString}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${page}`
+      ` ${BASE_URL}?key=${apiKey}&q=${queryString}&image_type=photo&orientation=horizontal&safesearch=true&per_page=${perPage}&page=${page}`
     )
     .then(response => {
       return response.data;
@@ -43,6 +44,8 @@ const fetchImages = () => {
 };
 
 const createGallery = data => {
+  const partOfCards = data.length / perPage;
+
   if (firstRender) {
     gallery.innerHTML = '';
   }
@@ -87,12 +90,14 @@ const createGallery = data => {
     )
     .join('');
   btn.classList.remove('hide');
-
+  if (partOfCards < 1) {
+    btn.classList.add('hide');
+  }
   return gallery.insertAdjacentHTML('beforeend', galleryCardList);
 };
 
 const onLoadBtnClick = () => {
-  page = page + 1;
+  page += 1;
   firstRender = false;
   fetchImages().then(response => {
     if (response.hits.length < 40) {
